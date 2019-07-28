@@ -1,7 +1,7 @@
 using System;
-using GeoAPI.Geometries;
 using NetTopologySuite.CoordinateSystems;
 using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 
 namespace NetTopologySuite.IO.Converters

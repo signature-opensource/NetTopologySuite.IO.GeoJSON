@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using GeoAPI.Geometries;
 using NetTopologySuite.CoordinateSystems;
 using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 
 namespace NetTopologySuite.IO.Converters
@@ -59,7 +59,7 @@ namespace NetTopologySuite.IO.Converters
             if (serializer.NullValueHandling == NullValueHandling.Include || feature.Geometry != null)
             {
                 writer.WritePropertyName("geometry");
-                serializer.Serialize(writer, feature.Geometry, typeof(IGeometry));
+                serializer.Serialize(writer, feature.Geometry, typeof(Geometry));
             }
 
             // properties
@@ -133,7 +133,7 @@ namespace NetTopologySuite.IO.Converters
 
                         if (reader.TokenType != JsonToken.StartObject)
                             throw new ArgumentException("Expected token '{' not found.");
-                        IGeometry geometry = serializer.Deserialize<IGeometry>(reader);
+                        Geometry geometry = serializer.Deserialize<Geometry>(reader);
                         feature.Geometry = geometry;
                         if (reader.TokenType != JsonToken.EndObject)
                             throw new ArgumentException("Expected token '}' not found.");
@@ -146,15 +146,10 @@ namespace NetTopologySuite.IO.Converters
                             // #120: ensure "properties" isn't "null"
                             if (reader.TokenType != JsonToken.StartObject)
                                 throw new ArgumentException("Expected token '{' not found.");
-#if NETSTANDARD1_0 || NETSTANDARD1_3
-                            var attributes = serializer.Deserialize<AttributesTable>(reader);
-                            ((AttributesTable) feature.Attributes).MergeWith(attributes);
-#else
                             var context = serializer.Context;
                             serializer.Context = new StreamingContext(serializer.Context.State, feature);
                             feature.Attributes = serializer.Deserialize<AttributesTable>(reader);
                             serializer.Context = context;
-#endif
                             if (reader.TokenType != JsonToken.EndObject)
                                 throw new ArgumentException("Expected token '}' not found.");
                         }

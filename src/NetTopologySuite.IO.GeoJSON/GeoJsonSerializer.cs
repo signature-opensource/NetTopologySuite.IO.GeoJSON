@@ -1,13 +1,8 @@
 ﻿using System;
-using GeoAPI.Geometries;
+using System.Diagnostics;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO.Converters;
 using Newtonsoft.Json;
-#if (NETSTANDARD1_0 || NETSTANDARD1_3)
-using Trace = System.Diagnostics.Debug;
-#else
-using Trace = System.Diagnostics.Trace;
-#endif
 
 namespace NetTopologySuite.IO
 {
@@ -24,7 +19,7 @@ namespace NetTopologySuite.IO
         /// <summary>
         /// Gets a default GeometryFactory
         /// </summary>
-        internal static IGeometryFactory Wgs84Factory { get; } = new GeometryFactory(new PrecisionModel(), 4326);
+        internal static GeometryFactory Wgs84Factory { get; } = new GeometryFactory(new PrecisionModel(), 4326);
 
         /// <summary>
         /// Factory method to create a (Geo)JsonSerializer
@@ -69,12 +64,12 @@ namespace NetTopologySuite.IO
         /// Factory method to create a (Geo)JsonSerializer
         /// </summary>
         /// <remarks>
-        /// Creates a serializer using <see cref="GeoJsonSerializer.Create(IGeometryFactory,int)"/> internally.
+        /// Creates a serializer using <see cref="GeoJsonSerializer.Create(GeometryFactory,int)"/> internally.
         /// </remarks>
         /// <param name="factory">A factory to use when creating geometries. The factories <see cref="PrecisionModel"/>
         /// is also used to format <see cref="Coordinate.X"/> and <see cref="Coordinate.Y"/> of the coordinates.</param>
         /// <returns>A <see cref="JsonSerializer"/></returns>
-        public static JsonSerializer Create(IGeometryFactory factory)
+        public static JsonSerializer Create(GeometryFactory factory)
         {
             return Create(factory, DefaultDimension);
         }
@@ -83,13 +78,13 @@ namespace NetTopologySuite.IO
         /// Factory method to create a (Geo)JsonSerializer
         /// </summary>
         /// <remarks>
-        /// Creates a serializer using <see cref="GeoJsonSerializer.Create(JsonSerializerSettings,IGeometryFactory,int)"/> internally.
+        /// Creates a serializer using <see cref="GeoJsonSerializer.Create(JsonSerializerSettings,GeometryFactory,int)"/> internally.
         /// </remarks>
         /// <param name="factory">A factory to use when creating geometries. The factories <see cref="PrecisionModel"/>
         /// is also used to format <see cref="Coordinate.X"/> and <see cref="Coordinate.Y"/> of the coordinates.</param>
         /// <param name="dimension">A number of dimensions that are handled. Valid inputs are 2 and 3.</param>
         /// <returns>A <see cref="JsonSerializer"/></returns>
-        public static JsonSerializer Create(IGeometryFactory factory, int dimension)
+        public static JsonSerializer Create(GeometryFactory factory, int dimension)
         {
             return Create(new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }, factory, dimension);
         }
@@ -98,7 +93,7 @@ namespace NetTopologySuite.IO
         /// Factory method to create a (Geo)JsonSerializer using the provider serializer settings and geometry factory
         /// </summary>
         /// <returns>A <see cref="JsonSerializer"/></returns>
-        public static JsonSerializer Create(JsonSerializerSettings settings, IGeometryFactory factory)
+        public static JsonSerializer Create(JsonSerializerSettings settings, GeometryFactory factory)
         {
             return Create(settings, factory, DefaultDimension);
         }
@@ -110,7 +105,7 @@ namespace NetTopologySuite.IO
         /// <param name="factory">The factory to use when creating a new geometry</param>
         /// <param name="dimension">The number of ordinates to handle</param>
         /// <returns>A <see cref="JsonSerializer"/></returns>
-        public static JsonSerializer Create(JsonSerializerSettings settings, IGeometryFactory factory, int dimension)
+        public static JsonSerializer Create(JsonSerializerSettings settings, GeometryFactory factory, int dimension)
         {
             if (dimension < 2 || dimension > 3)
                 throw new ArgumentException("Invalid number of ordinates. Must be in range [2,3]", nameof(dimension));
@@ -120,7 +115,7 @@ namespace NetTopologySuite.IO
             return s;
         }
 
-        private static void AddGeoJsonConverters(JsonSerializer s, IGeometryFactory factory, int dimension)
+        private static void AddGeoJsonConverters(JsonSerializer s, GeometryFactory factory, int dimension)
         {
             if (factory.SRID != 4326)
                 Trace.WriteLine($"Factory with SRID of unsupported coordinate reference system.");
@@ -150,7 +145,7 @@ namespace NetTopologySuite.IO
         /// </summary>
         /// <param name="geometryFactory">The geometry factory.</param>
         [Obsolete("Use GeoJsonSerializer.Create...() functions")]
-        public GeoJsonSerializer(IGeometryFactory geometryFactory)
+        public GeoJsonSerializer(GeometryFactory geometryFactory)
         {
             base.Converters.Add(new ICRSObjectConverter());
             base.Converters.Add(new FeatureCollectionConverter());

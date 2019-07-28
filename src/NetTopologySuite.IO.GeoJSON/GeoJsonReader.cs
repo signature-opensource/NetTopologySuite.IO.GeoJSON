@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using GeoAPI.Geometries;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 
@@ -16,9 +15,9 @@ namespace NetTopologySuite.IO
         /// Gets a default GeometryFactory
         /// </summary>
         [Obsolete("Create your own, internally we use GeoJsonSerializer.Wgs84Factory")]
-        public static IGeometryFactory Wgs84Factory { get; } = GeoJsonSerializer.Wgs84Factory;
+        public static GeometryFactory Wgs84Factory { get; } = GeoJsonSerializer.Wgs84Factory;
 
-        private readonly IGeometryFactory _factory;
+        private readonly GeometryFactory _factory;
         private readonly JsonSerializerSettings _serializerSettings;
         private readonly int _dimension;
 
@@ -31,24 +30,24 @@ namespace NetTopologySuite.IO
         }
 
         /// <summary>
-        /// Creates an instance of this class using the provided <see cref="IGeometryFactory"/> and
+        /// Creates an instance of this class using the provided <see cref="GeometryFactory"/> and
         /// <see cref="JsonSerializerSettings"/>.
         /// </summary>
         /// <param name="factory">The factory to use when creating geometries</param>
         /// <param name="serializerSettings">The serializer setting</param>
-        public GeoJsonReader(IGeometryFactory factory, JsonSerializerSettings serializerSettings)
+        public GeoJsonReader(GeometryFactory factory, JsonSerializerSettings serializerSettings)
             : this(factory, serializerSettings, GeoJsonSerializer.DefaultDimension)
         {
         }
 
         /// <summary>
-        /// Creates an instance of this class using the provided <see cref="IGeometryFactory"/> and
+        /// Creates an instance of this class using the provided <see cref="GeometryFactory"/> and
         /// <see cref="JsonSerializerSettings"/>.
         /// </summary>
         /// <param name="factory">The factory to use when creating geometries</param>
         /// <param name="serializerSettings">The serializer setting</param>
         /// <param name="dimension">The number of dimensions to handle</param>
-        public GeoJsonReader(IGeometryFactory factory, JsonSerializerSettings serializerSettings, int dimension)
+        public GeoJsonReader(GeometryFactory factory, JsonSerializerSettings serializerSettings, int dimension)
         {
             _factory = factory;
             _serializerSettings = serializerSettings;

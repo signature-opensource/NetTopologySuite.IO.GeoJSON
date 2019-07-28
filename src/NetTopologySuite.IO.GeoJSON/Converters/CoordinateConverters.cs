@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using GeoAPI.Geometries;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 
@@ -13,7 +12,7 @@ namespace NetTopologySuite.IO.Converters
     /// </summary>
     public class CoordinateConverter : JsonConverter
     {
-        private readonly IPrecisionModel _precisionModel;
+        private readonly PrecisionModel _precisionModel;
         private readonly int _dimension;
 
         /// <summary>
@@ -28,7 +27,7 @@ namespace NetTopologySuite.IO.Converters
         /// </summary>
         /// <param name="precisionModel">The precision model to use for writing</param>
         /// <param name="dimension">The number of dimensions</param>
-        public CoordinateConverter(IPrecisionModel precisionModel, int dimension = GeoJsonSerializer.DefaultDimension)
+        public CoordinateConverter(PrecisionModel precisionModel, int dimension = GeoJsonSerializer.DefaultDimension)
         {
             _precisionModel = precisionModel;
             _dimension = dimension;

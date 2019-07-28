@@ -1,17 +1,17 @@
 using System;
 using System.Collections.Generic;
-using GeoAPI.Geometries;
+using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace NetTopologySuite.IO.Converters
 {
     /// <summary>
-    /// Converts an array of <see cref="IGeometry"/>s to and from JSON
+    /// Converts an array of <see cref="Geometry"/>s to and from JSON
     /// </summary>
     public class GeometryArrayConverter : JsonConverter
     {
-        private readonly IGeometryFactory _factory;
+        private readonly GeometryFactory _factory;
         private readonly int _dimension;
 
         /// <summary>
@@ -20,27 +20,27 @@ namespace NetTopologySuite.IO.Converters
         public GeometryArrayConverter() : this(GeoJsonSerializer.Wgs84Factory) { }
 
         /// <summary>
-        /// Creates an instance of this class using the provided <see cref="IGeometryFactory"/>
+        /// Creates an instance of this class using the provided <see cref="GeometryFactory"/>
         /// </summary>
         /// <param name="factory">The factory</param>
-        public GeometryArrayConverter(IGeometryFactory factory)
+        public GeometryArrayConverter(GeometryFactory factory)
         : this(factory, GeoJsonSerializer.DefaultDimension)
         {
         }
 
         /// <summary>
-        /// Creates an instance of this class using the provided <see cref="IGeometryFactory"/>
+        /// Creates an instance of this class using the provided <see cref="GeometryFactory"/>
         /// </summary>
         /// <param name="factory">The factory</param>
         /// <param name="dimension">The number of dimensions to handle</param>
-        public GeometryArrayConverter(IGeometryFactory factory, int dimension)
+        public GeometryArrayConverter(GeometryFactory factory, int dimension)
         {
             _factory = factory;
             _dimension = dimension;
         }
 
         /// <summary>
-        /// Writes an array of <see cref="IGeometry"/>s to JSON
+        /// Writes an array of <see cref="Geometry"/>s to JSON
         /// </summary>
         /// <param name="writer">The writer</param>
         /// <param name="value">The geometry</param>
@@ -49,10 +49,10 @@ namespace NetTopologySuite.IO.Converters
         {
             //moved to GeometryConverter:
             //writer.WritePropertyName("geometries");
-            WriteGeometries(writer, value as IList<IGeometry>, serializer);
+            WriteGeometries(writer, value as IList<Geometry>, serializer);
         }
 
-        private static void WriteGeometries(JsonWriter writer, IEnumerable<IGeometry> geometries, JsonSerializer serializer)
+        private static void WriteGeometries(JsonWriter writer, IEnumerable<Geometry> geometries, JsonSerializer serializer)
         {
             writer.WriteStartArray();
             foreach (var geometry in geometries)
@@ -61,7 +61,7 @@ namespace NetTopologySuite.IO.Converters
         }
 
         /// <summary>
-        /// Reads an array of <see cref="IGeometry"/>s from JSON
+        /// Reads an array of <see cref="Geometry"/>s from JSON
         /// </summary>
         /// <param name="reader">The reader</param>
         /// <param name="objectType">The object type</param>
@@ -78,7 +78,7 @@ namespace NetTopologySuite.IO.Converters
                 throw new Exception();
 
             reader.Read();
-            var geoms = new List<IGeometry>();
+            var geoms = new List<Geometry>();
             while (reader.TokenType != JsonToken.EndArray)
             {
                 var obj = (JObject)serializer.Deserialize(reader);
@@ -120,29 +120,29 @@ namespace NetTopologySuite.IO.Converters
         /// <returns><value>true</value> if the conversion is possible, otherwise <value>false</value></returns>
         public override bool CanConvert(Type objectType)
         {
-            return typeof(IEnumerable<IGeometry>).IsAssignableFrom(objectType);
+            return typeof(IEnumerable<Geometry>).IsAssignableFrom(objectType);
         }
 
-        private IMultiLineString CreateMultiLineString(List<Coordinate[]> coordinates)
+        private MultiLineString CreateMultiLineString(List<Coordinate[]> coordinates)
         {
-            var strings = new ILineString[coordinates.Count];
+            var strings = new LineString[coordinates.Count];
             for (int i = 0; i < coordinates.Count; i++)
                 strings[i] = _factory.CreateLineString(coordinates[i]);
             return _factory.CreateMultiLineString(strings);
         }
 
-        private IPolygon CreatePolygon(List<Coordinate[]> coordinates)
+        private Polygon CreatePolygon(List<Coordinate[]> coordinates)
         {
             var shell = _factory.CreateLinearRing(coordinates[0]);
-            var rings = new ILinearRing[coordinates.Count - 1];
+            var rings = new LinearRing[coordinates.Count - 1];
             for (int i = 1; i < coordinates.Count; i++)
                 rings[i - 1] = _factory.CreateLinearRing(coordinates[i]);
             return _factory.CreatePolygon(shell, rings);
         }
 
-        private IMultiPolygon CreateMultiPolygon(List<List<Coordinate[]>> coordinates)
+        private MultiPolygon CreateMultiPolygon(List<List<Coordinate[]>> coordinates)
         {
-            var polygons = new IPolygon[coordinates.Count];
+            var polygons = new Polygon[coordinates.Count];
             for (int i = 0; i < coordinates.Count; i++)
                 polygons[i] = CreatePolygon(coordinates[i]);
             return _factory.CreateMultiPolygon(polygons);

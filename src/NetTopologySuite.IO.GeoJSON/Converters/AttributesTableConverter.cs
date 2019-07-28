@@ -134,11 +134,8 @@ namespace NetTopologySuite.IO.Converters
             reader.Read();
             Utility.SkipComments(reader);
 
-            IAttributesTable attributesTable = null;
-#if !(NETSTANDARD1_0 || NETSTANDARD1_3)
             var feature = serializer.Context.Context as IFeature;
-            attributesTable = feature?.Attributes;
-#endif
+            IAttributesTable attributesTable = feature?.Attributes;
             if (reader.TokenType != JsonToken.Null)
             {
                 if (attributesTable == null)
